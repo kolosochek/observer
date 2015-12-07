@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="toolbox"></div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="panel">
+            <header class="panel-heading"></header>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>slug</th>
+                        <th>subject</th>
+                        <th>department</th>
+                        <th>status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for key, ticket in content.items %}
+                    {% if loop.index <= ticket_count %}
+                    <tr class="{% if ticket.ticket_last_message %}state__active {% endif %}b-ticket-header th{{ ticket.ticket_id }}" id="{{ ticket.ticket_id }}">
+                        <td class="b-ticket-id"><a href="/tickets/observer/ticket/29/change/"{{ ticket.ticket_id }}</td>
+                        <td>
+                            <a target="_blank" class="b-link" href="https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=viewticket&ticketid={{ ticket.ticket_id }}">{{ ticket.ticket_slug }}</a>
+                        </td>
+                        <td>
+                            <a target="_blank" class="b-link" href="https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=viewticket&ticketid={{ ticket.ticket_id }}">{{ ticket.ticket_subject }}</a>
+                        </td>
+                        <td>{{ ticket.ticket_department }}</td>
+                        <td>
+                            <span class="badge bg-{% if ticket.ticket_status == 'Closed' %}important{% endif %}{% if ticket.ticket_status == 'Hold' %}warning{% endif %}{% if ticket.ticket_status == 'Open' %}success{% endif %}">{{ ticket.ticket_status }}</span>
+                        </td>
+                    </tr>
+                    <tr class="b-ticket-body ticket_{{ loop.index }}{% if ticket.ticket_last_message %} state__active{% else %} state__collapsed{% endif%} tb{{ ticket.ticket_id }}">
+                        <td class="b-ajax" colspan="5">
+                            <p class="b-plaintext">{% if ticket.ticket_last_message %}{{ ticket.ticket_last_message }}{% endif%}</p>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+        observer.bind_events();
+        observer.set_observer();
+
+        var ticket_headers = $('.b-ticket-header');
+        ticket_headers.on('click', function(){
+            $(this).toggleClass("state__active");
+            if ($(this).hasClass("state__active")){
+
+            }
+        })
+    });
+</script>
+{% endblock %}

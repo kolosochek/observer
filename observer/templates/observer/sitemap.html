@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load front_tags %}
+{% block meta %}
+    <meta name="keywords" property="og:keywords" content="{% if category %}{{ category|title }}{% else %}Appartement{% endif %} for {% if type|lower == 'louer' %}Rent{% endif %}{% if type|lower == 'acheter' %}Buy{% else %}Rent{% endif %} a {% if address %}{{ address|title }}{% else %}VD{% endif %}">
+    <meta name="title" property="og:title" content="{% if category %}{{ category|title }}{% else %}Appartement{% endif %} for {% if type|lower == 'louer' %}Rent{% endif %}{% if type|lower == 'acheter' %}Buy{% else %}Rent{% endif %} a {% if address %}{{ address|title }}{% else %}VD{% endif %}">
+    <meta name="url" property="og:url" content="{{ page_url }}">
+    <meta name="description" property="og:description" content="{{ object.additional_information }}">
+{% endblock %}
+{% block js %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ion.rangeSlider.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/application.js"></script>
+{% endblock %}
+{% block content %}
+    <section class="b-search b-page-search">
+        <section class="b-module">
+            <h2>Аренда</h2>
+            <ul class="b-list">
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/maison-et-appartement-a-louer" class="b-link">снять-квартиры-и-дома</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer" class="b-link">снять-квартиры</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/studio-a-louer" class="b-link">снять студии</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/maison-a-louer" class="b-link">снять дома</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/chambre-a-louer" class="b-link">снять комнату</a>
+                </li>
+            </ul>
+        </section>
+    <section class="b-module">
+            <h2>Продажа</h2>
+            <ul class="b-list">
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/maisons-et-appartements-a-acheter" class="b-link">купить квартиры-и-дома</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-acheter" class="b-link">купить квартиры</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/studio-a-acheter" class="b-link">купить студии</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/maison-a-acheter" class="b-link">купить дома</a>
+                </li>
+            </ul>
+        </section>
+    </section>
+    <section class="b-module">
+            <h2>Снять %s комнат</h2>
+            <ul class="b-list">
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer-pieces-de-2" class="b-link">Аренда квартир от 2 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer-pieces-de-3" class="b-link">Аренда квартир от 3 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer-pieces-de-4" class="b-link">Аренда квартир от 4 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer-pieces-de-5" class="b-link">Аренда квартир от 5 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-louer-pieces-de-6" class="b-link">Аренда квартир от 6 комнат</a>
+                </li>
+            </ul>
+        </section>
+    </section>
+    <section class="b-module">
+            <h2>Снять %s комнат</h2>
+            <ul class="b-list">
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-verde-pieces-de-2" class="b-link">Покупка квартир от 2 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-verde-pieces-de-3" class="b-link">Покупка квартир от 3 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-verde-pieces-de-4" class="b-link">Покупка квартир от 4 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-verde-pieces-de-5" class="b-link">Покупка квартир от 5 комнат</a>
+                </li>
+                <li class="b-list-item">
+                    <a href="http://www.carbonimmo.ch/appartement-a-verde-pieces-de-6" class="b-link">Покупка квартир от 6 комнат</a>
+                </li>
+            </ul>
+        </section>
+    </section>
+{% endblock %}

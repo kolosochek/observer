@@ -1,0 +1,40 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>{% block title %}{{ title|title }}{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    <link type="text/css" rel="stylesheet" href="{% static 'observer/css/style.css' %}">
+    {% block js %}
+    <script type="text/javascript" src="{% static 'observer/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'observer/js/script.js' %}"></script>
+    {% endblock %}
+    {% block canonical_link %}{% endblock %}
+</head>
+<body>
+{% block header %}
+    <header class="b-header-wrapper">
+        <section class="b-header">
+
+        </section>
+    </header>
+{% endblock %}
+{% block content-wrapper %}
+    <section class="b-page">
+        <section class="b-page-wrapper">
+            {% block content %}
+                {% block search %}{% endblock %}
+            {% endblock %}
+        </section>
+    </section>
+{% endblock %}
+{% block footer %}
+    <footer class="b-footer-wrapper">
+        <section class="b-footer">
+
+        </section>
+    </footer>
+{% endblock %}
+</body>
+</html>
