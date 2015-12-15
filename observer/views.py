@@ -4,7 +4,44 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import logout as logout_user
 from django.shortcuts import HttpResponseRedirect, RequestContext, render_to_response, get_object_or_404, get_list_or_404, redirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from models import Ticket, TicketForm
+from models import Ticket, TicketForm, Employee
+
+# Tools
+def get_department_plural(ticket_department=''):
+    ticket_department_filter = ''
+    if ticket_department == '':
+        ticket_department_filter = u'All'
+    if ticket_department == 'support':
+        ticket_department_filter = u'Техническая поддержка'
+    if ticket_department == 'admin':
+        ticket_department_filter = u'Дежурный администратор'
+    if ticket_department == 'director':
+        ticket_department_filter = u'Руководство'
+    if ticket_department == 'finance':
+        ticket_department_filter = u'Фин.отдел'
+    if ticket_department == 'abuse':
+        ticket_department_filter = u'Жалобы'
+    if ticket_department == 'superadmin':
+        ticket_department_filter = u'Старший администратор'
+    return ticket_department_filter
+
+def get_department(ticket_department):
+    ticket_department_filter = ''
+    if ticket_department == u'All':
+        ticket_department_filter = ''
+    if ticket_department == u'Техническая поддержка':
+        ticket_department_filter = 'support'
+    if ticket_department == u'Дежурный администратор':
+        ticket_department_filter = "admin"
+    if ticket_department == u'Руководство':
+        ticket_department_filter = 'director'
+    if ticket_department == u'Фин.отдел':
+        ticket_department_filter = 'finance'
+    if ticket_department == u'Жалобы':
+        ticket_department_filter = 'abuse'
+    if ticket_department == u'Старший администратор':
+        ticket_department_filter = 'superadmin'
+    return ticket_department_filter
 
 # Ticket list view
 @staff_member_required
@@ -24,7 +61,7 @@ def tickets_view(request, page=1, per_page=10, ticket_department='', ticket_stat
         'per_page': per_page,
         'ticket_department': ticket_department,
         'ticket_status': ticket_status,
-    }
+        }
     # page params
     page = request.GET.get('page', page)
     try:
@@ -40,21 +77,7 @@ def tickets_view(request, page=1, per_page=10, ticket_department='', ticket_stat
     ticket_status = request.GET.get('ticket_status', data.get('ticket_status', ''))
     ticket_department = request.GET.get('ticket_department', data.get('ticket_department', ''))
     ticket_department = request.GET.get('ticket_department', '')
-    ticket_department_filter = ''
-    if ticket_department == '':
-        ticket_department_filter = u'All'
-    if ticket_department == 'support':
-        ticket_department_filter = u'Техническая поддержка'
-    if ticket_department == 'admin':
-        ticket_department_filter = u'Дежурный администратор'
-    if ticket_department == 'director':
-        ticket_department_filter = u'Руководство'
-    if ticket_department == 'finance':
-        ticket_department_filter = u'Фин.отдел'
-    if ticket_department == 'abuse':
-        ticket_department_filter = u'Жалобы'
-    if ticket_department == 'superadmin':
-        ticket_department_filter = u'Старший администратор'
+    ticket_department_filter = get_department_plural(ticket_department)
     ticket_status_filter = ticket_status.title()
     filter_expression = ''
     if filter_order == 'desc':
@@ -84,7 +107,7 @@ def tickets_view(request, page=1, per_page=10, ticket_department='', ticket_stat
     else:
         # open tickets by department count(open_ticket_count)
         try:
-            open_ticket_count = len(get_list_or_404(Ticket, ticket_department=request.user.get_department(), ticket_status="Open"))
+            open_ticket_count = len(get_list_or_404(Ticket, ticket_department=get_department(request.user.profile.department), ticket_status="Open"))
         except Exception:
             open_ticket_count = 0
 
@@ -158,10 +181,8 @@ def tickets_view(request, page=1, per_page=10, ticket_department='', ticket_stat
     data['filter_field'] = filter_field
     data['filter_order'] = filter_order
     data['open_ticket_count'] = open_ticket_count
-    # debug
-    data['debug'] = request.user
     # render results
-    return render_to_response('ticket_list.html', {"content": content, "ticket_count": ticket_count, 'paginator': paginator, 'data': data }, context_instance=RequestContext(request))
+    return render_to_response('ticket_list.html', {"content": content, "ticket_count": ticket_count, 'paginator': paginator, 'data': data}, context_instance=RequestContext(request))
 
 # Ticket searh view
 @staff_member_required
@@ -237,12 +258,30 @@ def detail_view(request, ticket_id=False):
 # User profile page view
 @staff_member_required
 def profile(request):
-    data = {}
-    user = request.get('user', False)
-    if user:
-        return render_to_response('profile', {"content": user, 'data': data}, context_instance=RequestContext(request))
+    data = {'user_department': get_department(request.user.profile.department)}
+    try:
+        open_ticket_count = len(get_list_or_404(Ticket, ticket_department=get_department_plural(profile.department), ticket_status="Open"))
+    except Exception:
+        open_ticket_count = 0
+    user = get_object_or_404(Employee, user=request.user)
+    # Update values
+    if request.method == 'POST':
+        user.department = request.POST.get("department", False)
+        # Try to save ticket
+        try:
+            user.save()
+            return render_to_response('profile.html', {"content": '', 'data': data}, context_instance=RequestContext(request))
+        except Exception:
+            print("Can't save a ticket!")
+    # View values
     else:
-        pass
+        if user:
+            data = {
+                'user_department': get_department(request.user.profile.department),
+                'ticket': {},
+                }
+    data['open_ticket_count'] = open_ticket_count
+    return render_to_response('profile.html', {"content": '', 'data': data}, context_instance=RequestContext(request))
 
 # Logout view
 def logout(request):
@@ -260,3 +299,4 @@ def handler500(request):
     response = render_to_response('500.html', {}, context_instance=RequestContext(request))
     response.status_code = 500
     return response
+

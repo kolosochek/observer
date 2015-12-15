@@ -2,9 +2,11 @@
 from datetime import datetime
 from django.db.models import Model, CharField, OneToOneField, IntegerField, BooleanField, EmailField, TextField, DateTimeField, ForeignKey
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 from django.forms import ModelForm
 from django.forms import widgets
 
+#
 DEPARTMENT_CHOICES = (
     ('', 'All'),
     ('Техническая поддержка', 'Техническая поддержка'),
@@ -13,6 +15,16 @@ DEPARTMENT_CHOICES = (
     ('Фин.отдел', 'Фин.отдел'),
     ('Жалобы', 'Жалобы'),
     ('Старший администратор', 'Старший администратор'),
+)
+#
+PROFILE_DEPARTMENT_CHOICES = (
+    ('', 'All'),
+    ('support', 'Техническая поддержка'),
+    ('admin', 'Дежурный администратор'),
+    ('director', 'Руководство'),
+    ('finance', 'Фин.отдел'),
+    ('abuse', 'Жалобы'),
+    ('superadmin', 'Старший администратор'),
 )
 #
 STATUS_CHOICES = (
@@ -28,6 +40,24 @@ PRIORITY_CHOICES = (
     ('medium', 'Medium'),
     ('high', 'High'),
 )
+#
+VIEWMODE_CHOICES = (
+    ('view', 'View'),
+    ('edit', 'Edit'),
+)
+
+
+class UserProfile(Model):
+    # This field is required.
+    user = OneToOneField(User)
+
+    # Other fields here
+    accepted_eula = BooleanField()
+    department = CharField(max_length=20, default="")
+
+
+
+
 
 # Extend base user
 class Employee(Model):
@@ -35,18 +65,26 @@ class Employee(Model):
         verbose_name = 'User'
         verbose_name_plural = 'User'
 
-    user = OneToOneField(User)
-    department = CharField(max_length=100)
+    user = OneToOneField(User, related_name="profile")
+    user_information = TextField(max_length=4096, verbose_name="Tell about yourself", null=False, blank=True)
+    department = CharField(max_length=100, choices=PROFILE_DEPARTMENT_CHOICES)
+    # view or edit detail ticket mode
+    default_view_mode= CharField(max_length=128, verbose_name='Detault page view mode', choices=VIEWMODE_CHOICES, default='view')
 
     def get_department(self):
         return self.department
 
-    def __str__(self):
-        return "%s" % self.user
+    #def __str__(self):
+    #    return "Profile"
 
-    def __unicode__(self):
-        return "%s" % self.user
+    #def __unicode__(self):
+    #    return "Profile"
 
+# Create user profile function
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Employee.objects.create(user=instance)
+post_save.connect(create_user_profile, sender=User)
 
 # Ticket(request, client, whatever)
 class Ticket(Model):

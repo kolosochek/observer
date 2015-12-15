@@ -18,8 +18,7 @@ Including another URLconf
 
 from django.conf.urls import url
 from django.contrib import admin
-from views import tickets_view, search, detail_view, logout
-from django.contrib.staticfiles import views
+from views import tickets_view, search, detail_view, logout, profile
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 import settings
@@ -27,6 +26,7 @@ import settings
 urlpatterns = [
     url(r'^$', tickets_view, name='tickets_view'),
     url(r'^logout/', logout),
+    url(r'^profile/', profile),
     url(r'^search/', search),
     url(r'^detail/(?P<ticket_id>[0-9]+$)', detail_view),
     url(r'^admin/', admin.site.urls),

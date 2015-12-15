@@ -98,11 +98,11 @@
                         <!-- inbox notificatoin end -->
                         <!-- user login dropdown start-->
                         <li class="dropdown">
-                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="/profile">
                             <span class="profile-ava">
                                 <img alt="" src="/static/observer/images/avatar1_small.jpg">
                             </span>
-                                <span class="username">{{ user.username }}</span>
+                                <span class="username">{% if user.first_name or user.last_name %}{{ user.first_name }} {{ user.last_name }}{%else%}{{ user.username }}{%endif%}</span>
                                 <b class="caret"></b>
                             </a>
                         </li>
