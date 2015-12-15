@@ -6,25 +6,21 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.models import User, Group
 
-class TicketAdmin(ModelAdmin):
-    #resource_class = AdResource
-    suit_classes = 'suit-tab suit-tab-ad'
-    list_display = ['ticket_id', 'ticket_slug', 'ticket_subject', 'ticket_department', 'ticket_status']
-    fieldsets = [
-        ('Basic information', {
-            'description': 'Basic information',
-            'classes': ('suit-tab', 'suit-tab-basic'),
-            'fields': ['ticket_id', 'ticket_slug', 'ticket_subject']
-        }),
-        ('Additional information', {
-            'description': 'Additional information',
-            'classes': ('suit-tab', 'suit-tab-description'),
-            'fields': ['ticket_department', 'ticket_status',]
-        }),
-    ]
-    suit_form_tabs = (('basic', 'Basic information'),
-                      ('description', 'Additional information'),)
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import User
 
-admin.site.register(Ticket, TicketAdmin)
-#admin.site.unregister(User)
-admin.site.unregister(Group)
+# Define an inline admin descriptor for Employee model
+# which acts a bit like a singleton
+class EmployeeInline(admin.StackedInline):
+    model = Employee
+    can_delete = False
+    verbose_name_plural = 'employee'
+
+# Define a new User admin
+class UserAdmin(BaseUserAdmin):
+    inlines = (EmployeeInline, )
+
+# Re-register UserAdmin
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

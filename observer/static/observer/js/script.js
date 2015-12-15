@@ -1,7 +1,7 @@
 var settings = new Object({
     'request_timeout': 10000, // request timeout 10s
     'refresh_timeout': 10000,//30000, // send request every 30 seconds
-    'alert_file_url': "http://172.245.130.157/static/alert.mp3",
+    'alert_file_url': "http://172.245.130.157:8000/static/observer/alert.mp3",
     'alert_file_url_ogg': '',
     'tickets_on_the_page_selector': ".b-ticket-header",
     'predefined_replies_url': "https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=managepredreplies",

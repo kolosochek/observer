@@ -1,63 +1,371 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div id="toolbox"></div>
-<div class="row">
-    <div class="col-lg-12">
-        <section class="panel">
-            <header class="panel-heading"></header>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>slug</th>
-                        <th>subject</th>
-                        <th>department</th>
-                        <th>status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for key, ticket in content.items %}
-                    {% if loop.index <= ticket_count %}
-                    <tr class="{% if ticket.ticket_last_message %}state__active {% endif %}b-ticket-header th{{ ticket.ticket_id }}" id="{{ ticket.ticket_id }}">
-                        <td class="b-ticket-id"><a href="/tickets/observer/ticket/29/change/"{{ ticket.ticket_id }}</td>
-                        <td>
-                            <a target="_blank" class="b-link" href="https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=viewticket&ticketid={{ ticket.ticket_id }}">{{ ticket.ticket_slug }}</a>
-                        </td>
-                        <td>
-                            <a target="_blank" class="b-link" href="https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=viewticket&ticketid={{ ticket.ticket_id }}">{{ ticket.ticket_subject }}</a>
-                        </td>
-                        <td>{{ ticket.ticket_department }}</td>
-                        <td>
-                            <span class="badge bg-{% if ticket.ticket_status == 'Closed' %}important{% endif %}{% if ticket.ticket_status == 'Hold' %}warning{% endif %}{% if ticket.ticket_status == 'Open' %}success{% endif %}">{{ ticket.ticket_status }}</span>
-                        </td>
-                    </tr>
-                    <tr class="b-ticket-body ticket_{{ loop.index }}{% if ticket.ticket_last_message %} state__active{% else %} state__collapsed{% endif%} tb{{ ticket.ticket_id }}">
-                        <td class="b-ajax" colspan="5">
-                            <p class="b-plaintext">{% if ticket.ticket_last_message %}{{ ticket.ticket_last_message }}{% endif%}</p>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </section>
+<!-- page start-->
+<section class="b-page">
+    <div id="toolbox"></div>
+    <!-- <div class="row">
+        <div class="col-lg-12">
+            <ul class="breadcrumb">
+                <li><a href="#"><i class="icon_house_alt"></i> Home</a></li>
+                <li><a href="#"> UI Kit</a></li>
+                <li class="active"> General</li>
+            </ul>
+        </div>
+    </div> -->
+    <div class="row">
+        <div class="col-lg-12">
+            <p id="" class="">
+            <form name="b-filter" action="/" method="GET">
+                <ul class="b-form-filter b-ticket-department-filter">
+                    <li class="b-form-filer__item">
+                        <select name="ticket_department" class="form-control b-ticket-department input-small">
+                            <option {% if data.ticket_department = "" %}selected{% endif %} class="" value="">All</option>
+                            <option {% if data.ticket_department = "support" %}selected{% endif %} class=""value="support">Support</option>
+                            <option {% if data.ticket_department = "admin" %}selected{% endif %} value="admin">Admin</option>
+                            <option {% if data.ticket_department = "director" %}selected{% endif %} value="director">Director</option>
+                            <option {% if data.ticket_department = "finance" %}selected{% endif %} value="finance">Finance</option>
+                            <option {% if data.ticket_department = "abuse" %}selected{% endif %} value="abuse">Abuse</option>
+                            <option {% if data.ticket_department = "superadmin" %}selected{% endif %} value="superadmin">Superadmin</option>
+                        </select>
+                    </li>
+                </ul>
+                <ul class="b-form-filter b-ticket-status-filter">
+                    <li class="b-form-filer__item">
+                        <select name="ticket_status" class="form-control b-ticket-status input-small">
+                            <option {% if data.ticket_status = '' %}selected{% endif %} value="">All</option>
+                            <option {% if data.ticket_status = 'open' %}selected{% endif %} value="open">Open</option>
+                            <option {% if data.ticket_status = 'closed' %}selected{% endif %} value="closed">Closed</option>
+                            <option {% if data.ticket_status = 'hold' %}selected{% endif %} value="hold">Hold</option>
+                        </select>
+                    </li>
+                </ul>
+                <ul class="b-form-filter b-per-page-filter">
+                    <li class="b-form-filer__item">
+                        <select name="per_page" aria-controls="per-page" class="form-control b-perpage">
+                            <option {% if data.per_page = '10' or data.per_page = 10 %}selected{% endif %} perpage="10">10</option>
+                            <option {% if data.per_page = '25' or data.per_page = 25 %}selected{% endif %} perpage="25">25</option>
+                            <option {% if data.per_page = '50' or data.per_page = 50 %}selected{% endif %} perpage="50">50</option>
+                            <option {% if data.per_page = '100' or data.per_page = 100 %}selected{% endif %} perpage="100">100</option>
+                        </select>
+                    </li>
+                </ul>
+                <input class="b-filter-field" name="filter_field" type="hidden" value="{% if data.filter_field %}{{ data.filter_field }}{% else %}ticket_id{% endif %}" />
+                <input class="b-filter-order" name="filter_order" type="hidden" value="{% if data.filter_order %}{{ data.filter_order }}{% else %}desc{% endif %}" />
+                <input name="page" type="hidden" value="{% if data.page %}{{ data.page }}{% else %}1{% endif %}" />
+                <ul class="b-form-filter b-submit-filter">
+                    <li class="b-form-filer__item">
+                        <button type="submit" class="b-filter-submit btn btn-primary">Filter tickets</button>
+                    </li>
+                </ul>
+            </form>
+            </p>
+        </div>
     </div>
-</div>
-<script type="text/javascript">
-    $(document).ready(function(){
-        observer.bind_events();
-        observer.set_observer();
+    <div class="row">
+        <div class="col-lg-12">
+            <section class="panel">
+                <div class="table-responsive">
+                    <table class="table b-ticket-list">
+                        <thead>
+                        <tr>
+                            <th class="b-filter-column" id="ticket_id">id
+                                {% if data.filter_field = 'ticket_id' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_id' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                            <th class="b-filter-column" id="ticket_slug">slug
+                                {% if data.filter_field = 'ticket_slug' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_slug' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                            <th class="b-filter-column" id="ticket_subject">subject
+                                {% if data.filter_field = 'ticket_subject' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_subject' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                            <th class="b-filter-column" id="ticket_department">department
+                                {% if data.filter_field = 'ticket_department' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_department' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                            <th class="b-filter-column" id="ticket_status">status
+                                {% if data.filter_field = 'ticket_status' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_status' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                            <th class="b-filter-column" id="ticket_update_date">activity date
+                                {% if data.filter_field = 'ticket_update_date' and data.filter_order = 'desc' %}
+                                <sub class="">▼</sub>
+                                {% elif data.filter_field = 'ticket_update_date' and data.filter_order = 'asc' %}
+                                <sup class="">▲</sup>
+                                {% endif %}
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ticket in content %}
+                        <tr class="{% cycle 'even' 'odd' %} {% if ticket.ticket_last_message %}state__active {% endif %}b-ticket-header th{{ ticket.ticket_id }}" id="{{ ticket.ticket_id }}">
+                            <td class="b-ticket-cell b-ticket-id">{{ ticket.ticket_id }}</td>
+                            <td class="b-ticket-cell">
+                                <a target="_blank" class="b-link" href="/detail/{{ ticket.get_ticket_id }}">{{ ticket.ticket_slug }}</a>
+                            </td>
+                            <td class="b-ticket-cell">
+                                <a target="_blank" href="/detail/{{ ticket.get_ticket_id }}" class="b-link" >{{ ticket.ticket_subject }}</a>
+                            </td>
+                            <td class="b-ticket-cell b-ticket-department-column">
+                                {{ ticket.ticket_department }}
+                                <!--
+                                <select class="form-control b-ticket-department input-sm input-small">
+                                    <option {% if ticket.ticket_department = '' %}selected{% endif %} class="b-option" value="">all</option>
+                                    <option {% if ticket.ticket_department|lower = 'техническая поддержка' %}selected{% endif %} class="b-option" value="support">support</option>
+                                    <option {% if ticket.ticket_department|lower = 'дежурный администратор' %}selected{% endif %} class="b-option" value="admin">admin</option>
+                                    <option {% if ticket.ticket_department|lower = 'руководство' %}selected{% endif %} class="b-option" value="director">director</option>
+                                    <option {% if ticket.ticket_department|lower = 'фин.отдел' %}selected{% endif %} class="b-option" value="finance">finance</option>
+                                    <option {% if ticket.ticket_department|lower = 'жалобы' %}selected{% endif %} class="b-option" value="abuse">abuse</option>
+                                    <option {% if ticket.ticket_department|lower = 'старший администратор' %}selected{% endif %} class="b-option" value="superadmin">superadmin</option>
+                                </select>
+                                -->
+                            </td>
+                            <td class="b-ticket-cell b-ticket-status-column">
+                                <span class="{% if ticket.ticket_status|lower == 'open' %} success{% endif %}{% if ticket.ticket_status|lower == 'closed' %} danger{% endif %}{% if ticket.ticket_status|lower == 'hold' %} warning{% endif %}">{{ ticket.ticket_status }}</span>
+                                <!--
+                                {% if ticket.ticket_status|lower == 'open' %} success{% endif %}{% if ticket.ticket_status|lower == 'closed' %} danger{% endif %}{% if ticket.ticket_status|lower == 'hold' %} warning{% endif %}" status="{{ ticket.ticket_status }}
+                                <select class="form-control b-ticket-status input-sm input-small">
+                                    <option {% if ticket.ticket_status = '' %}selected{% endif %} class="b-option" value="">all</option>
+                                    <option {% if ticket.ticket_status|lower = 'open' %}selected{% endif %} class="b-option" value="open">open</option>
+                                    <option {% if ticket.ticket_status|lower = 'closed' %}selected{% endif %} class="b-option" value="closed">closed</option>
+                                    <option {% if ticket.ticket_status|lower = 'hold' %}selected{% endif %} class="b-option" value="hold">hold</option>
+                                </select>
+                                -->
+                                <!-- <span class="b-ticket-list__item {% if ticket.ticket_status == 'Closed' %}red{% endif %}{% if ticket.ticket_status == 'Hold' %}yellow{% endif %}{% if ticket.ticket_status == 'Open' %}green{% endif %}">{{ ticket.ticket_status }}</span> -->
+                            </td>
+                            <td class="b-ticket-cell b-ticket-ticket-update-date">
+                                <span class="b-ticket-update-date">{{ ticket.ticket_update_date }}</span>
+                            </td>
+                        </tr>
+                        <tr class="b-ticket-body ticket_{{ loop.index }}{% if ticket.ticket_last_message %} state__active{% else %} state__collapsed{% endif%} tb{{ ticket.ticket_id }}">
+                            <td class="b-ajax" colspan="5">
+                                <p class="b-plaintext">{% if ticket.ticket_last_message %}{{ ticket.ticket_last_message }}{% endif%}</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
-        var ticket_headers = $('.b-ticket-header');
-        ticket_headers.on('click', function(){
-            $(this).toggleClass("state__active");
-            if ($(this).hasClass("state__active")){
+                {% if data.ticket_count %}
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div id="sample_1_info" class="dataTables_info">Showing {{ data.results_from }} to {{ data.results_to }} of {{ data.ticket_count }} entries</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="dataTables_paginate paging_bootstrap pagination">
+                            {% if paginator.num_pages > 1 %}
+                            <ul>
+                                <li class="prev first {% if data.page = 1 %}disabled{% endif %}">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page=1&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">← First</a>
+                                </li>
+                                {% if data.page_2 in paginator.page_range %}
+                                <li class="">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.page_2 }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">{{ data.page_2 }}</a>
+                                </li>
+                                {%endif%}
+                                {% if data.page_1 in paginator.page_range %}
+                                <li class="">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.page_1 }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">{{ data.page_1 }}</a>
+                                </li>
+                                {%endif%}
+                                {% if data.page in paginator.page_range %}
+                                <li class="active">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.page }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">{{ data.page }}</a>
+                                </li>
+                                {%endif%}
+                                {% if data.page__1 in paginator.page_range %}
+                                <li class="">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.page__1 }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">{{ data.page__1 }}</a>
+                                </li>
+                                {%endif%}
+                                {% if data.page__2 in paginator.page_range %}
+                                <li class="">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.page__2 }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order}}">{{ data.page__2 }}</a>
+                                </li>
+                                {%endif%}
+                                <li class="last next {% if data.page = data.last_page %}disabled{% endif %}">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.last_page }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order }}">Last → </a>
+                                </li>
+                            </ul>
+                            {% else %}
+                            <ul>
+                                <li class="first prev disabled">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page=1&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order }}">← First</a>
+                                </li>
+                                <li class="disabled">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page=1&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order }}">{{ data.page }}</a>
+                                </li>
+                                <li class="last next disabled">
+                                    <a href="/?ticket_department={{ data.ticket_department }}&ticket_status={{ data.ticket_status }}&page={{ data.last_page }}&per_page={{ data.per_page }}&filter_field={{ data.filter_field}}&filter_order={{ data.filter_order }}">Last → </a>
+                                </li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function(){
 
+            /*
+             var perpage = $(".b-perpage");
+             perpage.on('change', function(){
+             window.location.replace('');
+             });
+             */
+
+            var table_headers = $(".b-filter-column");
+            table_headers.on('click', function(){
+                var filter_field = $(this).attr('id');
+                $('.b-filter-field').val(filter_field);
+                //
+                if ($(this).find('sub').length){
+                    if ($('.b-filter-order').val() == 'desc'){
+                        $('.b-filter-order').val('asc');
+                    } else if ($('.b-filter-order').val() == 'asc'){
+                        $('.b-filter-order').val('desc');
+                    }
+                } else {
+                    $('.b-filter-order').val('desc');
+                }
+                console.log(this);
+                $(".b-filter-submit").trigger('click');
+            });
+
+            var ticket_status_select = $(".b-ticket-status");
+            ticket_status_select.on('change', function(){
+                if ($(this).val() == 'open'){
+                    $(this).parent().removeClass('danger').removeClass('warning').addClass('success')
+                }
+                if ($(this).val() == 'closed'){
+                    $(this).parent().removeClass('success').removeClass('warning').addClass('danger')
+                }
+                if ($(this).val() == 'hold'){
+                    $(this).parent().removeClass('success').removeClass('danger').addClass('warning')
+                }
+            });
+
+            var notifications = $(".b-notification-link");
+            notifications.on('click', function(){
+                $(this).next().toggleClass('state__active').toggle();
+            });
+
+            /*
+             observer.bind_events();
+             observer.set_observer();
+
+             var ticket_headers = $('.b-ticket-header');
+             ticket_headers.on('click', function(){
+             $(this).toggleClass("state__active");
+             if ($(this).hasClass("state__active")){
+
+             }
+             })
+             */
+        });
+        function initializeJS() {
+
+            //custom scrollbar
+            //sidebar dropdown menu
+            jQuery('#sidebar .sub-menu > a').click(function () {
+                var last = jQuery('.sub-menu.open', jQuery('#sidebar'));
+                jQuery('.menu-arrow').removeClass('arrow_carrot-right');
+                jQuery('.sub', last).slideUp(200);
+                var sub = jQuery(this).next();
+                if (sub.is(":visible")) {
+                    jQuery('.menu-arrow').addClass('arrow_carrot-right');
+                    sub.slideUp(200);
+                } else {
+                    jQuery('.menu-arrow').addClass('arrow_carrot-down');
+                    sub.slideDown(200);
+                }
+                var o = (jQuery(this).offset());
+                diff = 200 - o.top;
+                if(diff>0)
+                    jQuery("#sidebar").scrollTo("-="+Math.abs(diff),500);
+                else
+                    jQuery("#sidebar").scrollTo("+="+Math.abs(diff),500);
+            });
+
+            // sidebar menu toggle
+            jQuery(function() {
+                function responsiveView() {
+                    var wSize = jQuery(window).width();
+                    if (wSize <= 768) {
+                        jQuery('#container').addClass('sidebar-close');
+                        jQuery('#sidebar > ul').hide();
+                    }
+
+                    if (wSize > 768) {
+                        jQuery('#container').removeClass('sidebar-close');
+                        jQuery('#sidebar > ul').show();
+                    }
+                }
+                jQuery(window).on('load', responsiveView);
+                jQuery(window).on('resize', responsiveView);
+            });
+
+            jQuery('.toggle-nav').click(function () {
+                if (jQuery('#sidebar > ul').is(":visible") === true) {
+                    jQuery('#main-content').css({
+                        'margin-left': '0px'
+                    });
+                    jQuery('#sidebar').css({
+                        'margin-left': '-180px'
+                    });
+                    jQuery('#sidebar > ul').hide();
+                    jQuery("#container").addClass("sidebar-closed");
+                } else {
+                    jQuery('#main-content').css({
+                        'margin-left': '180px'
+                    });
+                    jQuery('#sidebar > ul').show();
+                    jQuery('#sidebar').css({
+                        'margin-left': '0'
+                    });
+                    jQuery("#container").removeClass("sidebar-closed");
+                }
+            });
+
+            //bar chart
+            if (jQuery(".custom-custom-bar-chart")) {
+                jQuery(".bar").each(function () {
+                    var i = jQuery(this).find(".value").html();
+                    jQuery(this).find(".value").html("");
+                    jQuery(this).find(".value").animate({
+                        height: i
+                    }, 2000)
+                })
             }
-        })
-    });
-</script>
+
+        }
+
+        jQuery(document).ready(function(){
+            initializeJS();
+        });
+    </script>
+</section>
+<!-- page end-->
 {% endblock %}
+

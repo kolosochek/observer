@@ -25,13 +25,13 @@ SECRET_KEY = '0ne!2-(yuz-80u4e_obw$u*p$3=56k8spb_mv4@s9-wj8^!t@63o'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'suit',
+    #'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'observer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/data/observer/observer/templates/observer/', '/var/www/observer/observer/templates/observer/'],
+        'DIRS': ['/data/observer/observer/templates/observer/', '/var/www/observer/observer/templates/observer/, /data/observer/observer/, /data/observer/observer/static/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,49 +116,18 @@ USE_L10N = True
 
 USE_TZ = True
 
-SUIT_CONFIG = {
-    # header
-     'ADMIN_NAME': 'Observer',
-     'HEADER_DATE_FORMAT': 'l, j. F Y',
-     'HEADER_TIME_FORMAT': 'H:i',
-
-    # forms
-     'SHOW_REQUIRED_ASTERISK': True,  # Default True
-     'CONFIRM_UNSAVED_CHANGES': True, # Default True
-
-    # menu
-     'SEARCH_URL': '/ticket/search/?q=',
-     'MENU_ICONS': {
-        'sites': 'icon-leaf',
-        'auth': 'icon-lock',
-     },
-     'MENU_OPEN_FIRST_CHILD': True, # Default True
-     'MENU_EXCLUDE': ('auth.group', 'auth.user'),
-     'MENU': (
-         {'label': 'Observe tickets', 'icon':'icon-bookmark', 'url': '/tickets/&departmentid=1&ticketstatusid=1/short/html'},
-         'observer',
-         #{'app': 'observer', 'icon':'icon-lock', 'models': ('tickets')},
-         #{'label': 'Tickets', 'icon':'icon-cog', 'models': ('tickets', )},
-         #{'label': 'Ticket list', 'icon':'icon-cog', 'url': '/tickets/observer/ticket/'},
-     ),
-
-    # misc
-     'LIST_PER_PAGE': 15
-}
-
-# Django Suit configuration example
-
+LOGIN_REDIRECT_URL ='/observer/'
 
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join('/var/www/observer/', 'static')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join('/var/www/observer/', 'media')
 #STATIC_URL = '/static/'
-#STATIC_ROOT = os.path.join('/data/observer/', 'static')
+#STATIC_ROOT = os.path.join('/var/www/observer/', 'static')
 #MEDIA_URL = '/media/'
-#MEDIA_ROOT = os.path.join('/data/observer/', 'media')
+#MEDIA_ROOT = os.path.join('/var/www/observer/', 'media')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join('/data/observer/', 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join('/data/observer/', 'media')

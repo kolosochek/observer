@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- page start-->
+<section class="b-page b-ticket-detail-page">
+    <div id="toolbox"></div>
+    <div class="row">
+        <div class="col-lg-12">
+            <ul class="breadcrumb">
+                <li><a href="/"><i class="icon_house_alt"></i> Observer</a></li>
+                <li class="active"> Ticket {{ content.ticket_id }} {{ content.ticket_slug}}</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="btn-row b-ticket-detail-view-switcher">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-primary">
+                    <input name="view_mode" id="view" type="radio" value="view"> View
+                </label>
+                <label class="btn btn-primary active">
+                    <input name="view_mode" id="edit" type="radio" value="edit"> Edit
+                </label>
+            </div>
+        </div>
+        <div class="col-lg-12 b-ticket-detail-view">
+            <form name="b-filter" action="/" method="GET">
+                {% csrf_token %}
+                <div class="">
+                    <div class="b-ticket-detail">
+                        <h2 class="b-ticket-subject">{{ content.ticket_subject }}</h2>
+                        <h4>
+                            <span class="b-ticket-detail__ticket_id">ticket id: <code>{{ content.ticket_id }}</code></span><br/><span class="b-ticket-detail__ticket_slug">ticket slug: <code>{{ content.ticket_slug }}</code></span><br/><span class="b-ticket-detail__ticket_status">ticket status: <code>{% if content.ticket_status %}{{ content.ticket_status }}{% else %}All{% endif %}</code></span><br/><span class="b-ticket-detail__ticket_department">ticket department: <code>{% if content.ticket_department %}{{ content.ticket_department }}{% else %}All{% endif %}</code></span><br/><span class="b-ticket-detail__ticket_update_date">ticket activity date: <code>{{ content.ticket_update_date }}</code></span>
+                        </h4>
+                        <p>
+                        {% if content.ticket_description %}
+                            <pre>{{ content.tickt_descrition }}</pre>
+                        {% else %}
+                            <pre>Никифоров Николай<br/>13 дек. 2015 г., в 14:47, <a href="mailto:mozorovich@mchost.ru">Михаил Озорович</a> написал(а):<br/>><br/>> Покажите скриншот. Просьба не создавать каждый новый запрос, а отвечать через функцию "Ответить" в почте.<br/><br/>>> Поступил запрос от клиента a111674:<br/>>><br/>>> Тариф: Профи<br/>>> E-mail: <a href="mailto:nikiforovn@inbox.ru">nikiforovn@inbox.ru</a><br/>>><br/>>> Вот что пишет:<br/>>> Расположение каталога данных не отвечает требованиям безопасности<br/>><br/>><br/>><br/>>> Хостинг-провайдер Макхост,<br/>> <a href="https://mchost.ru/">https://mchost.ru/</a></pre>
+                        {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- edit viewport -->
+        <div class="col-lg-12 b-ticket-detail-edit">
+            <form class="b-form form-validate form-horizontal" id="ticket_change_form" method="post" action="" novalidate="novalidate" name="ticket_change_form">
+                {% csrf_token %}
+                <div class="panel-body">
+                    <div class="form">
+                        <div class="form">
+                            <div class="form-group spacer"></div>
+
+
+                            <div class="form-group">
+                                <div class="col-lg-2 b-label">
+                                    <label class="control-label col-lg-2">Ticket department<span class="required">*</span></label>
+                                </div>
+                                <div class="col-lg-10">
+                                    <select class="b-select form-control " id="id_ticket_department" name="ticket_department">
+                                        <option {% if content.ticket_department = '' %}selected{% endif %} value="">All</option>
+                                        <option {% if content.ticket_department = 'Техническая поддержка' %}selected{% endif %} value="Техническая поддержка">Техническая поддержка</option>
+                                        <option {% if content.ticket_department = 'Дежурный администратор' %}selected{% endif %} value="Дежурный администратор">Дежурный администратор</option>
+                                        <option {% if content.ticket_department = 'Руководство' %}selected{% endif %} value="Руководство">Руководство</option>
+                                        <option {% if content.ticket_department = 'Фин.отдел' %}selected{% endif %} value="Фин.отдел">Фин.отдел</option>
+                                        <option {% if content.ticket_department = 'Жалобы' %}selected{% endif %} value="Жалобы">Жалобы</option>
+                                        <option {% if content.ticket_department = 'Старший администратор' %}selected{% endif %} value="Старший администратор">Старший администратор</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-group">
+                                <div class="col-lg-2 b-label">
+                                    <label class="control-label col-lg-2">Ticket status<span class="required">*</span></label>
+                                </div>
+                                <div class="col-lg-10">
+                                    <select class="b-select form-control " id="id_ticket_status" name="ticket_status">
+                                        <option {% if content.ticket_status = '' %}selected{% endif %} value="">All</option>
+                                        <option {% if content.ticket_status = 'Open' %}selected{% endif %} value="Open">Open</option>
+                                        <option {% if content.ticket_status = 'Closed' %}selected{% endif %} value="Closed">Closed</option>
+                                        <option {% if content.ticket_status = 'Hold' %}selected{% endif %} value="Hold">Hold</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <!-- <div class="form-group spacer"></div>
+                        {% for field in form %}
+                            {% if field %}
+                                <div class="form-group">
+                                    <div class="col-lg-2 b-label">
+                                        <label class="control-label col-lg-2">{{ field.label }}<span class="required">*</span></label>
+                                    </div>
+                                    <div class="col-lg-10">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        -->
+                    </div>
+                </div>
+
+                <input class="b-submit btn btn-primary" type="submit" value="Save changes" />
+            </form>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        var view_switcher = $(".b-ticket-detail-view-switcher input");
+        var view_switcher_label = $(".b-ticket-detail-view-switcher label");
+        view_switcher.on('click', function(){
+            var choosen = $(this).val();
+            view_switcher_label.toggleClass('active');
+            if (choosen == 'edit'){
+                $(this).val('edit');
+                $(".b-ticket-detail-view").hide();
+                $(".b-ticket-detail-edit").show();
+            } else if (choosen == 'view') {
+                $(this).val('view');
+                $(".b-ticket-detail-edit").hide();
+                $(".b-ticket-detail-view").show();
+            }
+        });
+
+        var notifications = $(".b-notification-link");
+        notifications.on('click', function(){
+            $(this).next().toggleClass('state__active').toggle();
+        });
+
+        /*
+         observer.bind_events();
+         observer.set_observer();
+
+         var ticket_headers = $('.b-ticket-header');
+         ticket_headers.on('click', function(){
+         $(this).toggleClass("state__active");
+         if ($(this).hasClass("state__active")){
+
+         }
+         })
+         */
+    });
+    function initializeJS() {
+
+        //custom scrollbar
+        //sidebar dropdown menu
+        jQuery('#sidebar .sub-menu > a').click(function () {
+            var last = jQuery('.sub-menu.open', jQuery('#sidebar'));
+            jQuery('.menu-arrow').removeClass('arrow_carrot-right');
+            jQuery('.sub', last).slideUp(200);
+            var sub = jQuery(this).next();
+            if (sub.is(":visible")) {
+                jQuery('.menu-arrow').addClass('arrow_carrot-right');
+                sub.slideUp(200);
+            } else {
+                jQuery('.menu-arrow').addClass('arrow_carrot-down');
+                sub.slideDown(200);
+            }
+            var o = (jQuery(this).offset());
+            diff = 200 - o.top;
+            if(diff>0)
+                jQuery("#sidebar").scrollTo("-="+Math.abs(diff),500);
+            else
+                jQuery("#sidebar").scrollTo("+="+Math.abs(diff),500);
+        });
+
+        // sidebar menu toggle
+        jQuery(function() {
+            function responsiveView() {
+                var wSize = jQuery(window).width();
+                if (wSize <= 768) {
+                    jQuery('#container').addClass('sidebar-close');
+                    jQuery('#sidebar > ul').hide();
+                }
+
+                if (wSize > 768) {
+                    jQuery('#container').removeClass('sidebar-close');
+                    jQuery('#sidebar > ul').show();
+                }
+            }
+            jQuery(window).on('load', responsiveView);
+            jQuery(window).on('resize', responsiveView);
+        });
+
+        jQuery('.toggle-nav').click(function () {
+            if (jQuery('#sidebar > ul').is(":visible") === true) {
+                jQuery('#main-content').css({
+                    'margin-left': '0px'
+                });
+                jQuery('#sidebar').css({
+                    'margin-left': '-180px'
+                });
+                jQuery('#sidebar > ul').hide();
+                jQuery("#container").addClass("sidebar-closed");
+            } else {
+                jQuery('#main-content').css({
+                    'margin-left': '180px'
+                });
+                jQuery('#sidebar > ul').show();
+                jQuery('#sidebar').css({
+                    'margin-left': '0'
+                });
+                jQuery("#container").removeClass("sidebar-closed");
+            }
+        });
+
+        //bar chart
+        if (jQuery(".custom-custom-bar-chart")) {
+            jQuery(".bar").each(function () {
+                var i = jQuery(this).find(".value").html();
+                jQuery(this).find(".value").html("");
+                jQuery(this).find(".value").animate({
+                    height: i
+                }, 2000)
+            })
+        }
+
+    }
+
+    jQuery(document).ready(function(){
+        initializeJS();
+    });
+</script>
+<!-- page end-->
+{% endblock %}
+

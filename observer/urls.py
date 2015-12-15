@@ -15,20 +15,20 @@ Including another URLconf
     2. Import the include() function: from django.conf.urls import url, include
     3. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+
 from django.conf.urls import url
 from django.contrib import admin
-from views import tickets_view, logout
+from views import tickets_view, search, detail_view, logout
 from django.contrib.staticfiles import views
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 import settings
 
 urlpatterns = [
-    url(r'^$', tickets_view),
+    url(r'^$', tickets_view, name='tickets_view'),
     url(r'^logout/', logout),
-    url(r'^tickets/(?P<url>[a-zA-Z-_0-9&=]*)/(?P<mode>[a-z]*)/(?P<content_type>\w+)$', tickets_view),
-    url(r'^tickets/', admin.site.urls),
-    # Define static
-    url(r'^static/(?P<path>.*)$', views.serve),
+    url(r'^search/', search),
+    url(r'^detail/(?P<ticket_id>[0-9]+$)', detail_view),
+    url(r'^admin/', admin.site.urls),
 ]
 urlpatterns += staticfiles_urlpatterns()

@@ -84,7 +84,7 @@ class Kayako:
         if ticket_id:
             ticket_url = "https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=viewticket&ticketid=%s" % ticket_id
             self.grab.go(ticket_url)
-            data = self.grab.doc.pyquery(self.grab.response.unicode_body())
+            data = self.grab.doc.pyquery(self.grab.response.body.decode(self.encoding))
             # debug
             self.last_ticket_message = data.find(self.ticket_last_message_selector)
             self.last_ticket_message_id = ticket_id
@@ -99,7 +99,7 @@ class Kayako:
         else:
             raise("Got no ticket_id")
 
-    def get_ticket_list(self, url='&departmentid=1&ticketstatusid=3', mode='short', content_type='json'):
+    def get_ticket_list(self, url='&departmentid=1&ticketstatusid=1', mode='short', content_type='json'):
         def parse_ticket_list(index, node):
             if not node.attrib.get('id', False) == "trmassaction":
                 # store ticket_id
@@ -148,20 +148,49 @@ class Kayako:
                         "ticket_priority": ticket_priority,
                         "ticket_last_message": ticket_last_message
                     }
-                    # create ticket object
-                    #ticket = Ticket(ticket_id = ticket_id, ticket_slug= ticket_slug, ticket_subject= ticket_subject,
-                    #                ticket_department= ticket_department,ticket_status= ticket_status,
-                    #                ticket_activity= ticket_activity, ticket_due= ticket_due,
-                    #                ticket_owner= ticket_owner, ticket_email= ticket_email,
-                    #                ticket_replier= ticket_replier, ticket_priority= ticket_priority)
-                    #                #ticket_last_message= ticket_last_message )
-                    #self.ticket = ticket
-                    #ticket.save()
-                    #if not ticket[1]:
-                    #    pass
-                    #    ticket.save()
-                    #else:
-                    #    ticket = ticket[0]
+                    try:
+                        ticket_to_update = Ticket.objects.filter(ticket_id=ticket_id).first()
+                        print "Ticket # %s already exist" % ticket_id
+                    except Ticket.DoesNotExist:
+                        ticket_to_update = False
+                        print "Can't find an object"
+                    #
+                    if ticket_to_update:
+                        ticket_to_update.ticket_id = ticket_id
+                        ticket_to_update.ticket_slug = ticket_slug
+                        ticket_to_update.ticket_subject = ticket_subject
+                        ticket_to_update.ticket_department = ticket_department
+                        ticket_to_update.ticket_status = ticket_status
+                        ticket_to_update.ticket_activity = ticket_activity
+                        ticket_to_update.ticket_due = ticket_due
+                        ticket_to_update.ticket_owner = ticket_owner
+                        ticket_to_update.ticket_email = ticket_email
+                        ticket_to_update.ticket_replier = ticket_replier
+                        ticket_to_update.ticket_priority = ticket_priority
+                        ticket_to_update.ticket_last_message = ticket_last_message
+                        # save changed fields to db
+                        try:
+                            ticket_to_update.save()
+                            print "Ticked # %s updated" % ticket_id
+                            print "Ticket slug %s status %s" % (ticket_slug, ticket_status)
+                        except Exception:
+                            print "Can't update ticket # %s" % ticket_id
+                    else:
+                        # create ticket object
+                        try:
+                            ticket, created = Ticket.objects.get_or_create(ticket_id = ticket_id, ticket_slug= ticket_slug, ticket_subject= ticket_subject,
+                                            ticket_department= ticket_department,ticket_status= ticket_status,
+                                            ticket_activity= ticket_activity, ticket_due= ticket_due,
+                                            ticket_owner= ticket_owner, ticket_email= ticket_email,
+                                            ticket_last_message= ticket_last_message )
+                            try:
+                                ticket.save()
+                                print "Ticket %s" % created
+                            except Exception:
+                                print('Oops something broke down')
+                        except Ticket.DoesNotExist:
+                            print("Can't create new ticket, maybe ticket already exist?")
+
         base_url = "https://support.mchost.ru/support/staff/index.php?_m=tickets&_a=manage"
         url = "%s%s" % (base_url, url)
         if mode == 'short':
@@ -188,7 +217,7 @@ class Kayako:
             ticket_id = ticket_id.replace(self.ticket_id_prefix, '') \
                 if self.ticket_id_prefix in ticket_id and ticket_id != "trmassaction" \
                 else False
-            print ticket_id
+            #print ticket_id
             if ticket_id: #and self.ticket_id_prefix in ticket_id:
                 node = self.grab.doc.pyquery(node)
                 # parse ticket info
@@ -265,3 +294,6 @@ class Kayako:
 
     def get_tickets(self, pagenumber=1, limit=50):
         pass
+
+
+
